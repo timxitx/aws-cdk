@@ -1,0 +1,22 @@
+
+on:
+  push:
+    branches: [master]
+
+name: Publish cdk
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run cdk deploy
+      id: deploy-cdk
+      run: |
+        cdk deploy --all --require-approval never
+
