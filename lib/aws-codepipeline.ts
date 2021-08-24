@@ -12,7 +12,7 @@ export class AwsCodepipeline extends cdk.Stack {
 
     sourceOutput: Artifact = new Artifact();
     buildOutput: Artifact = new Artifact();;
-    FargateServices: FargateService[] = [];
+    fargateServices: FargateService[] = [];
     ecrRepository: ecr.Repository;
     vpc: Vpc;
     repoName: string;
@@ -24,7 +24,7 @@ export class AwsCodepipeline extends cdk.Stack {
 
         this.oauthToken = cdk.SecretValue.secretsManager('github-token');
 
-        this.ecrRepository = new ecr.Repository(this, "deployedRepo", {
+        this.ecrRepository = new ecr.Repository(this, repoName, {
             repositoryName: repoName
           });
 
@@ -36,7 +36,7 @@ export class AwsCodepipeline extends cdk.Stack {
 
 
     public addFargateService(Service: FargateService) {
-        this.FargateServices.push(Service);
+        this.fargateServices.push(Service);
     }
 
     public build() {
@@ -50,7 +50,11 @@ export class AwsCodepipeline extends cdk.Stack {
         var githubSourceAction = this.createGithubSourceAction(this.sourceOutput, this.oauthToken);
         var buildAction = this.createBuildAction(pipelineProject, this.sourceOutput, this.buildOutput);
 
-        var ecsDeployAction = this.createEcsDeployAction(this.vpc, this.ecrRepository, this.buildOutput, pipelineProject, this.repoName);
+        var deployActions = [] as EcsDeployAction[];
+        this.fargateServices.forEach((fargateService) => {
+            var deployAction = this.createEcsDeployAction(this.vpc, this.ecrRepository, this.buildOutput, pipelineProject, this.repoName, fargateService);
+            deployActions.push(deployAction);
+        });
 
         var pipeline = new Pipeline(this, 'my_pipeline_', {
             stages: [
@@ -64,7 +68,7 @@ export class AwsCodepipeline extends cdk.Stack {
             },
               {
                 stageName: 'Deploy',
-                actions: [ecsDeployAction]
+                actions: deployActions
               },
             ],
             pipelineName: "my_pipeline",
@@ -130,10 +134,10 @@ export class AwsCodepipeline extends cdk.Stack {
         return buildAction;
       }
     
-      private createEcsDeployAction(vpc: Vpc, ecrRepo: ecr.Repository, buildOutput: Artifact, pipelineProject: PipelineProject, repoName: string): EcsDeployAction {
+      private createEcsDeployAction(vpc: Vpc, ecrRepo: ecr.Repository, buildOutput: Artifact, pipelineProject: PipelineProject, repoName: string, fargateService: FargateService): EcsDeployAction {
         return new EcsDeployAction({
           actionName: 'EcsDeployAction',
-          service: this.FargateServices[0],
+          service: fargateService,
           input: buildOutput,
         })
       };

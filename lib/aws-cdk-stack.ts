@@ -7,19 +7,16 @@ const repoName = "monthly-payslip-with-cdk";
  
 export class AwsCdkStack extends cdk.Stack {
 
-  public readonly urlOutput: cdk.CfnOutput;
-
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     
-
     const vpc = new Vpc(this, "MyVpc", {
       maxAzs: 3 // Default is all AZs in region
     });
 
-    
-    var infrastructure_build = new AwsInfrastructureBuild(this, "AwsInfrastructureBuild", vpc, repoName, props);
+
     var aws_piepleine = new AwsCodepipeline(this, "AwsCodepipeline", vpc, repoName, props);
+    var infrastructure_build = new AwsInfrastructureBuild(this, "AwsInfrastructureBuild", vpc, repoName, props);
     var service = infrastructure_build.createFargateService();
     aws_piepleine.addFargateService(service);
     aws_piepleine.build();

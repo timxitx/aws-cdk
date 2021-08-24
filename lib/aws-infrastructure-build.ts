@@ -31,13 +31,13 @@ export class AwsInfrastructureBuild extends cdk.Stack {
   
       securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(8080), 'Allows internet to send request')
       
-      var cluster = new Cluster(this, 'AtoCluster', {
-        clusterName: 'AtoCluster',
+      var cluster = new Cluster(this, 'PayslipCluster', {
+        clusterName: 'PayslipCluster',
         vpc: this.vpc
       });
   
-      var fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(this, 'AtoService', {
-        serviceName: 'AtoService',
+      var fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(this, 'PayslipService', {
+        serviceName: 'PayslipService',
         cluster: cluster,
         memoryLimitMiB: 512,
         cpu: 256,
@@ -48,7 +48,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         publicLoadBalancer: true,
         taskImageOptions: {
           containerName: this.repoName,
-          image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
+          image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
           containerPort: 8080,
         },
       });
