@@ -44,7 +44,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         desiredCount: 1,
         assignPublicIp: true,
         securityGroups: [securityGroup],
-        listenerPort: 8080,
+        //listenerPort: 8080,
         publicLoadBalancer: true,
         taskImageOptions: {
           containerName: this.repoName,
