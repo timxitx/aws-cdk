@@ -4,7 +4,7 @@ import * as ecs from "@aws-cdk/aws-ecs";
 import * as ecspatterns from '@aws-cdk/aws-ecs-patterns';
 import { ManagedPolicy } from '@aws-cdk/aws-iam';
 import { Cluster } from '@aws-cdk/aws-ecs';
-import { Peer, Port } from '@aws-cdk/aws-ec2';
+import { Peer, Port } from '@aws-cdk/aws-ec2'; 
 
 
 export class AwsInfrastructureBuild extends cdk.Stack {
