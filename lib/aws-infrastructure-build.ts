@@ -34,7 +34,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       var cluster = new Cluster(this, 'PayslipCluster', {
         clusterName: 'PayslipCluster',
         vpc: this.vpc
-      });
+      }); 
   
       var fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(this, 'PayslipService', {
         serviceName: 'PayslipService',
