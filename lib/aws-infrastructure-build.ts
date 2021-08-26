@@ -44,12 +44,12 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         desiredCount: 1,
         assignPublicIp: true,
         securityGroups: [securityGroup],
-        //listenerPort: 8080,
+        listenerPort: 8080,
         publicLoadBalancer: true,
         taskImageOptions: {
           containerName: this.repoName,
-          //image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
-          image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
+          image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
+          //image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
           containerPort: 8080,
         },
       });
@@ -57,7 +57,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       fargateService.taskDefinition.executionRole?.addManagedPolicy((ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryPowerUser')));
 
       fargateService.targetGroup.configureHealthCheck({
-        path: "/actuator/health",
+        path: "/health",
         healthyHttpCodes: "200",
         port: "8080"
       })
