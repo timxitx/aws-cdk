@@ -29,7 +29,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         allowAllOutbound: true
       });
   
-      securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(8080), 'Allows internet to send request')
+      securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(22), 'Allows internet to send request')
       
       var cluster = new Cluster(this, 'PayslipCluster', {
         clusterName: 'PayslipCluster',
@@ -48,8 +48,8 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         publicLoadBalancer: true,
         taskImageOptions: {
           containerName: this.repoName,
-          image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
-          //image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
+          //image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
+          image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
           containerPort: 8080, 
         },
       });
