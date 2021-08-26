@@ -29,12 +29,12 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         allowAllOutbound: true
       });
   
-      securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(22), 'Allows internet to send request')
+      securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(9000), 'Allows internet to send request')
       
       var cluster = new Cluster(this, 'PayslipCluster', {
         clusterName: 'PayslipCluster',
         vpc: this.vpc
-      }); 
+      });
   
       var fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(this, 'PayslipService', {
         serviceName: 'PayslipService',
@@ -48,8 +48,8 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         publicLoadBalancer: true,
         taskImageOptions: {
           containerName: this.repoName,
-          //image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
-          image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
+          image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
+          //image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
           containerPort: 8080, 
         },
       });
@@ -59,7 +59,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       fargateService.targetGroup.configureHealthCheck({
         path: "/health",
         healthyHttpCodes: "200",
-        port: "8080"
+        port: "9000"
       })
 
       return fargateService.service;
