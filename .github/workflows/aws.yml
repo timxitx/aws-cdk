@@ -14,11 +14,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
-    - name : create a ecr
-      id: create-ecr
-      run: |
-        aws ecr create-repository --repository-name monthly-payslip-with-cdk --region us-east-2
       
     - name: cdk synth
       uses: youyo/aws-cdk-github-actions@v2.0.2

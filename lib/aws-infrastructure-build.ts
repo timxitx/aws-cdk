@@ -48,9 +48,9 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         publicLoadBalancer: true,
         taskImageOptions: {
           containerName: this.repoName,
-          //image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
-          image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
-          containerPort: 8080,
+          image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
+          //image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
+          containerPort: 8080, 
         },
       });
 
