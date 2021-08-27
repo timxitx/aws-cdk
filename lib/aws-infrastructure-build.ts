@@ -29,7 +29,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         allowAllOutbound: true
       });
   
-      securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(9000), 'Allows internet to send request')
+      securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(8080), 'Allows internet to send request')
       
       var cluster = new Cluster(this, 'PayslipCluster', {
         clusterName: 'PayslipCluster',
@@ -41,7 +41,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         cluster: cluster,
         memoryLimitMiB: 512,
         cpu: 256,
-        desiredCount: 1,
+        desiredCount: 2,
         assignPublicIp: true,
         securityGroups: [securityGroup],
         listenerPort: 8080,
@@ -59,9 +59,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       fargateService.targetGroup.configureHealthCheck({
         path: "/health",
         healthyHttpCodes: "200",
-        port: "9000",
-        timeout: cdk.Duration.seconds(10),
-        interval: cdk.Duration.seconds(10)
+        port: "8080"
       })
 
       return fargateService.service;
