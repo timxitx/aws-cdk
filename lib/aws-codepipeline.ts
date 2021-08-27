@@ -19,17 +19,14 @@ export class AwsCodepipeline extends cdk.Stack {
     oauthToken: cdk.SecretValue;
 
   
-    constructor(scope: cdk.Construct, id: string, vpc: Vpc, repoName: string, props?: cdk.StackProps) {
+    constructor(scope: cdk.Construct, id: string, vpc: Vpc, repoName: string, ecrRepo: ecr.Repository, props?: cdk.StackProps) {
       super(scope, id, props);
 
         this.oauthToken = cdk.SecretValue.secretsManager('github-token');
 
-        this.ecrRepository = new ecr.Repository(this, repoName, {
-            repositoryName: repoName
-          });
-
           this.vpc = vpc;
           this.repoName = repoName;
+          this.ecrRepository = ecrRepo;
 
     }
 

@@ -41,15 +41,15 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         cluster: cluster,
         memoryLimitMiB: 512,
         cpu: 256,
-        desiredCount: 1,
+        desiredCount: 2,
         assignPublicIp: true,
         securityGroups: [securityGroup],
         listenerPort: 8080,
         publicLoadBalancer: true,
         taskImageOptions: {
           containerName: this.repoName,
-          image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
-          //image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
+          //image: ecs.ContainerImage.fromRegistry("837684165413.dkr.ecr.us-east-2.amazonaws.com/"+this.repoName+":latest"),
+          image: ecs.ContainerImage.fromRegistry("timxii/monthlypayslip"),
           containerPort: 8080, 
         },
       });
@@ -58,7 +58,8 @@ export class AwsInfrastructureBuild extends cdk.Stack {
 
       fargateService.targetGroup.configureHealthCheck({
         path: "/health",
-        healthyHttpCodes: "200",
+        interval: cdk.Duration.seconds(120),
+        unhealthyThresholdCount: 5,
         port: "8080",
       })
 
