@@ -59,7 +59,9 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       fargateService.targetGroup.configureHealthCheck({
         path: "/health",
         healthyHttpCodes: "200",
-        port: "9000"
+        port: "9000",
+        timeout: cdk.Duration.seconds(10),
+        interval: cdk.Duration.seconds(10)
       })
 
       return fargateService.service;
