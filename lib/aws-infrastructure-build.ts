@@ -41,7 +41,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
         cluster: cluster,
         memoryLimitMiB: 512,
         cpu: 256,
-        desiredCount: 2,
+        desiredCount: 1,
         assignPublicIp: true,
         securityGroups: [securityGroup],
         listenerPort: 8080,
@@ -59,7 +59,7 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       fargateService.targetGroup.configureHealthCheck({
         path: "/health",
         healthyHttpCodes: "200",
-        port: "8080"
+        port: "8080",
       })
 
       return fargateService.service;
