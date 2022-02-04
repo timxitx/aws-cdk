@@ -1,10 +1,12 @@
 import * as cdk from '@aws-cdk/core';
 import { Vpc, SecurityGroup } from '@aws-cdk/aws-ec2';
 import * as ecs from "@aws-cdk/aws-ecs";
+import * as ec2 from "@aws-cdk/aws-ec2";
 import * as ecspatterns from '@aws-cdk/aws-ecs-patterns';
 import { ManagedPolicy } from '@aws-cdk/aws-iam';
 import { Cluster } from '@aws-cdk/aws-ecs';
-import { Peer, Port } from '@aws-cdk/aws-ec2'; 
+import { Peer, Port, InterfaceVpcEndpoint } from '@aws-cdk/aws-ec2'; 
+import { Duration } from '@aws-cdk/core';
 
 
 export class AwsInfrastructureBuild extends cdk.Stack {
@@ -23,13 +25,30 @@ export class AwsInfrastructureBuild extends cdk.Stack {
 
     public createFargateService() {
 
-      const securityGroup = new SecurityGroup(this, 'mySecurityGroup', {
+      const securityGroup = new SecurityGroup(this, 'my-sg', {
         vpc: this.vpc,
-        description: 'Allow port to connect to EC2',
+        description: 'the security group for the application',
         allowAllOutbound: true
       });
-  
-      securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(8080), 'Allows internet to send request')
+
+      const securityGroupL= new SecurityGroup(this, 'sg-lambda', {
+        vpc: this.vpc,
+        description: 'the security group for lambda function',
+        allowAllOutbound: true
+      });
+
+      securityGroup.connections.allowFrom(securityGroupL, Port.tcp(8080), 'all traffic from port 8080 for HTTP');
+      //securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(8080), 'Allows internet to send request')
+
+      new InterfaceVpcEndpoint(this, 'VPC Endpoint', {
+        vpc: this.vpc,
+        service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
+        securityGroups: [securityGroup],
+        privateDnsEnabled: true,
+        subnets: this.vpc.selectSubnets({
+          subnetType: ec2.SubnetType.PRIVATE
+      })
+      });
       
       var cluster = new Cluster(this, 'PayslipCluster', {
         clusterName: 'PayslipCluster',
@@ -39,8 +58,8 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       var fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(this, 'PayslipService', {
         serviceName: 'PayslipService',
         cluster: cluster,
-        memoryLimitMiB: 512,
-        cpu: 256,
+        memoryLimitMiB: 2048,
+        cpu: 1024,
         desiredCount: 2,
         assignPublicIp: true,
         securityGroups: [securityGroup],
@@ -57,9 +76,10 @@ export class AwsInfrastructureBuild extends cdk.Stack {
       fargateService.taskDefinition.executionRole?.addManagedPolicy((ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryPowerUser')));
 
       fargateService.targetGroup.configureHealthCheck({
-        path: "/health",
-        interval: cdk.Duration.seconds(120),
-        unhealthyThresholdCount: 5,
+        path: "/actuator/health",
+        healthyHttpCodes: "200",
+        interval: Duration.seconds(120),
+        timeout: Duration.seconds(20),
         port: "8080",
       })
 

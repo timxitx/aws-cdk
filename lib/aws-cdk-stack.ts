@@ -12,7 +12,9 @@ export class AwsCdkStack extends cdk.Stack {
     super(scope, id, props);
     
     const vpc = new Vpc(this, "MyVpc", {
-      maxAzs: 2 // Default is all AZs in region
+      maxAzs: 2, // Default is all AZs in region
+      enableDnsHostnames: true,
+      enableDnsSupport: true,
     });
 
     var ecrRepository = new ecr.Repository(this, repoName, {
